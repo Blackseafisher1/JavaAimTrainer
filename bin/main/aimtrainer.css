@@ -1,0 +1,345 @@
+/* Root Styling */
+.root {
+    -fx-background-color: #1b1a1a;
+    -fx-font-family: "Arial";
+}
+
+/* Name Label */
+.name-label {
+    -fx-text-fill: linear-gradient(to right, #ffffff, #66d9ff, #a855f7, #dc6bff);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 0 0 0;
+}
+
+/* Title Label with Neon Effect */
+.title-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #ffffff, #66d9ff, #a855f7, #dc6bff);
+    -fx-effect: dropshadow(gaussian, #66d9ff, 20, 0.8, 0, 0);
+    -fx-padding: 10 0 15 0;
+}
+
+/* Game Area */
+.game-area {
+    -fx-background-color: #111111;
+    -fx-border-color: #333;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(168, 168, 168, 0.4), 30, 0, 0, 0);
+    -fx-cursor: crosshair;
+    -fx-pref-height: 600;
+}
+
+/* Target Styles (wird im Controller gesetzt) */
+.target {
+    -fx-background-radius: 50%;
+    -fx-cursor: crosshair;
+    -fx-transition: -fx-background-color 0.2s ease, -fx-scale-x 0.1s ease, 
+                    -fx-scale-y 0.1s ease;
+}
+
+.target-red {
+    -fx-background-color: red;
+    -fx-border-color: rgb(189, 0, 0);
+    -fx-border-width: 20;
+    -fx-border-radius: 50%;
+    -fx-effect: dropshadow(gaussian, yellow, 50, 0, 0, 0);
+}
+
+.target-red:hover {
+    -fx-effect: dropshadow(gaussian, white, 10, 0, 0, 0);
+    -fx-border-color: rgb(82, 6, 6);
+    -fx-background-color: rgb(131, 34, 34);
+}
+
+.target-red:pressed {
+    -fx-background-color: rgb(66, 5, 5);
+    -fx-border-color: rgb(53, 0, 0);
+}
+
+/* Control Buttons */
+.control-button {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2d2d2d);
+    -fx-text-fill: white;
+    -fx-padding: 12 25 12 25;
+    -fx-background-radius: 30;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 4);
+    -fx-border-color: #555;
+    -fx-border-width: 1;
+    -fx-border-radius: 30;
+    -fx-cursor: hand;
+    -fx-transition: -fx-background-color 0.2s ease, -fx-translate-y 0.2s ease;
+}
+
+.control-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3d3d3d);
+    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0, 0, 6);
+}
+
+.control-button:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 4, 0, 0, 2);
+}
+
+/* Sound Controls */
+.sound-controls {
+    -fx-alignment: center;
+    -fx-spacing: 15;
+}
+
+.sound-panel {
+    -fx-background-color: linear-gradient(to bottom right, #171717, #6e6e6e);
+    -fx-padding: 15;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 5);
+    -fx-border-color: #444;
+    -fx-border-width: 1;
+    -fx-spacing: 8;
+    -fx-alignment: center;
+}
+
+.panel-title {
+    -fx-text-fill: #ffd166;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 209, 102, 0.5), 5, 0, 0, 0);
+}
+
+/* Sound Option Buttons - UPDATED */
+.sound-option {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2d2d2d);
+    -fx-text-fill: white;
+    -fx-padding: 10 15 10 15;
+    -fx-background-radius: 20;
+    -fx-font-size: 14px;
+    -fx-border-color: #555;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.sound-option:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3d3d3d);
+    -fx-translate-y: -1;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 5, 0, 0, 0);
+}
+
+/* Selected Sound Button - NEW */
+.sound-option-selected {
+    -fx-background-color: linear-gradient(to bottom, #ffd166, #ffc145);
+    -fx-text-fill: #1a1a1a;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, #ffd166, 8, 0, 0, 0);
+    -fx-border-color: #ffb347;
+    -fx-border-width: 2;
+    -fx-translate-y: -2;
+}
+
+/* Active sound option (alternative class name) */
+.sound-option.active {
+    -fx-background-color: linear-gradient(to bottom, #ffd166, #ffc145);
+    -fx-text-fill: #1a1a1a;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, #ffd166, 8, 0, 0, 0);
+    -fx-border-color: #ffb347;
+    -fx-border-width: 2;
+}
+
+/* Mini Buttons */
+.mini-button {
+    -fx-background-color: #1c1c1c;
+    -fx-text-fill: #eee;
+    -fx-border-color: #333;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 13px;
+    -fx-padding: 3 7 3 7;
+    -fx-effect: dropshadow(gaussian, #444, 2, 0, 0, 0);
+    -fx-cursor: hand;
+    -fx-transition: -fx-border-color 0.2s ease, -fx-effect 0.2s ease;
+}
+
+.mini-button:hover {
+    -fx-effect: dropshadow(gaussian, #ffcc00, 5, 0, 0, 0);
+    -fx-border-color: #ffcc00;
+}
+
+/* Hit Effect Toggle Buttons - UPDATED */
+.hit-effect-toggle {
+    -fx-background-color: #1c1c1c;
+    -fx-text-fill: #eee;
+    -fx-border-color: #333;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-font-size: 13px;
+    -fx-padding: 5 10 5 10;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.hit-effect-toggle:hover {
+    -fx-effect: dropshadow(gaussian, red, 12, 0, 0, 0);
+}
+
+/* Hit Effect Toggle States - NEW */
+.hit-effect-toggle-active {
+    -fx-background-color: linear-gradient(to bottom, #48bb78, #38a169);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(72, 187, 120, 0.5), 8, 0, 0, 0);
+    -fx-border-color: #68d391;
+    -fx-border-width: 1;
+}
+
+.hit-effect-toggle-inactive {
+    -fx-background-color: linear-gradient(to bottom, #fc8181, #f56565);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(252, 129, 129, 0.5), 8, 0, 0, 0);
+    -fx-border-color: #feb2b2;
+    -fx-border-width: 1;
+}
+
+/* Slider */
+.slider {
+    -fx-pref-width: 200;
+}
+
+.slider .thumb {
+    -fx-background-color: #ffd166;
+    -fx-effect: dropshadow(gaussian, rgba(255, 209, 102, 0.8), 5, 0, 0, 0);
+}
+
+.slider .track {
+    -fx-background-color: #444;
+    -fx-background-radius: 4;
+}
+
+/* Volume and Status Labels */
+.volume-value, .file-label {
+    -fx-text-fill: #ffd166;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.sound-status-active {
+    -fx-background-color: rgba(6, 214, 160, 0.2);
+    -fx-text-fill: #06d6a0;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+}
+
+.sound-status-inactive {
+    -fx-background-color: rgba(255, 107, 107, 0.2);
+    -fx-text-fill: #ff6b6b;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+}
+
+/* Info Grid */
+.info-grid {
+    -fx-background-color: rgba(30, 30, 30, 0.8);
+    -fx-padding: 20;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 5);
+    -fx-border-color: #444;
+    -fx-border-width: 1;
+}
+
+.info-item {
+    -fx-background-color: rgba(20, 20, 20, 0.9);
+    -fx-padding: 15;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-color: #444;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 6, 0, 0, 3);
+    -fx-alignment: center;
+    -fx-spacing: 5;
+}
+
+.info-item Label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.info-value {
+    -fx-text-fill: #ffd166;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 209, 102, 0.5), 8, 0, 0, 0);
+}
+
+.best-score {
+    -fx-text-fill: #06d6a0;
+    -fx-effect: dropshadow(gaussian, rgba(6, 214, 160, 0.5), 20, 0, 0, 0);
+}
+
+/* Bottom Container */
+.bottom-container {
+    -fx-padding: 10 15 10 15;
+}
+
+/* Button Press Effect - NEW */
+.button-pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 4, 0, 0, 2);
+}
+
+/* Focus Effects - NEW */
+.focused {
+    -fx-border-color: #66d9ff;
+    -fx-border-width: 2;
+}
+
+/* Game State Label - NEW */
+.game-state-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-padding: 15px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: #ffd166;
+    -fx-border-width: 2px;
+}
+
+/* History Mode Styles - NEW */
+.history-display {
+    -fx-background-color: rgba(0, 0, 0, 0.85);
+    -fx-padding: 40px;
+    -fx-background-radius: 15px;
+    -fx-border-color: gold;
+    -fx-border-width: 3px;
+}
+
+.history-nav-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+/* Smooth Transitions - NEW */
+.transition-all {
+    -fx-transition: all 0.2s ease;
+}
+
+.changeVolume{
+
+    -fx-text-fill :  #ffd700;
+    -fx-font-size: 30px
+}
