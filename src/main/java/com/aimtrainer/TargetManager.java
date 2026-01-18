@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Minimal manager that delegates placement and spawn logic to Target factories.
- * Keeps the RNG instance for consistent randomness across the app.
+ * Einfacher Manager, der Platzierungs- und Spawn-Logik an die Target-Fabriken delegiert.
+ * Hält die RNG-Instanz für konsistente Zufallswerte in der Anwendung.
  */
 public class TargetManager {
     private final Xorshift128Plus rng;
@@ -15,7 +15,7 @@ public class TargetManager {
     }
 
     /**
-     * Spawn targets for a mode by delegating to Target factory methods.
+     * Erzeugt Ziele für einen Modus, delegiert an die Target-Fabrikmethoden.
      */
     public List<Target> spawnForMode(
         Target.Mode mode,
@@ -32,7 +32,7 @@ public class TargetManager {
     }
 
     /**
-     * Spawn a slug after a bounce target is hit.
+     * Erzeugt ein "Slug"-Ziel, wenn nach einem Bounce-Treffer ein Ersatz benötigt wird.
      */
     public Target spawnSlug(
         double width, double height,
@@ -44,7 +44,7 @@ public class TargetManager {
     }
 
     /**
-     * Expose RNG if controller or other systems need it.
+     * Gibt die RNG-Instanz frei, falls Controller oder andere Systeme sie benötigen.
      */
     public Xorshift128Plus rng() { return rng; }
 }

@@ -1,0 +1,73 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
+}
+
+group = 'com.aimtrainer'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "21.0.9"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media' ]
+}
+
+dependencies {
+    implementation 'org.xerial:sqlite-jdbc:3.45.3.0'
+}
+
+application {
+    mainClass = 'com.aimtrainer.Launcher'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// ============================================================================================
+// Alle in die Jar packen
+// ============================================================================================
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    description = 'Creates a fat JAR with all dependencies'
+    
+    manifest {
+        attributes(
+            'Main-Class': 'com.aimtrainer.Launcher',
+            'Implementation-Version': version
+        )
+    }
+    
+    archiveBaseName = 'AimTrainer'
+    archiveClassifier = 'fat'
+    archiveVersion = ''  // Keine Version im Dateinamen
+    
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    
+    from {
+        configurations.runtimeClasspath.findAll { 
+            // ============================================================================================
+            // alles außer korumpierte oder kaputte datein
+            // ============================================================================================
+            it.name.endsWith('.jar') && !it.name.contains('javafx')
+        }.collect { zipTree(it) }
+    }
+    
+    //die javFx classen direkt hinzufügen
+    from {
+        configurations.runtimeClasspath.findAll { 
+            it.name.contains('javafx')
+        }.collect { zipTree(it) }
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    
+    // flass ausversehen module-info.class datei drin ist
+    exclude 'module-info.class'
+}

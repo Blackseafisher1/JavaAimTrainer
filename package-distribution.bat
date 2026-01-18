@@ -8,16 +8,16 @@ echo    Simple AimTrainer Package Creator
 echo ===========================================
 echo.
 
-REM 1. Build JAR
+REM 1. JAR bauen
 echo [1/4] Building JAR...
 call gradlew.bat fatJar
 
-REM 2. Create folder
+REM 2. Ordner erstellen
 echo [2/4] Creating folder...
 if exist "AimTrainer_Final" rmdir /s /q "AimTrainer_Final"
 mkdir "AimTrainer_Final"
 
-REM 3. Copy files
+REM 3. Dateien kopieren
 echo [3/4] Copying files...
 copy "build\libs\AimTrainer-fat.jar" "AimTrainer_Final\AimTrainer.jar"
 
@@ -25,7 +25,7 @@ if exist "src\main\resources" (
     xcopy /E /I /Y "src\main\resources" "AimTrainer_Final\resources\"
 )
 
-REM 4. Create scripts
+REM 4. Skripte erstellen
 echo [4/4] Creating launcher...
 echo @echo off > "AimTrainer_Final\run.bat"
 echo echo Starting AimTrainer... >> "AimTrainer_Final\run.bat"
@@ -40,7 +40,7 @@ echo pause >> "AimTrainer_Final\run.bat"
 
 echo.
 echo ===========================================
-echo ✅ BASIC PACKAGE CREATED!
+echo BASIC PACKAGE CREATED!
 echo ===========================================
 echo.
 echo Folder: AimTrainer_Final

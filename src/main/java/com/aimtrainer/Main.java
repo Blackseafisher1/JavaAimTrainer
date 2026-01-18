@@ -1,9 +1,7 @@
 package com.aimtrainer;
 
 
-import com.aimtrainer.Controller;
-
-import java.io.IOException;
+// Removed unused imports
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -14,12 +12,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main extends Application {
 
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+
     @Override
     public void start(Stage stage) {
-        // Globalen Exception Handler setzen, damit wir Fehler auf dem Handy SEHEN
+        // Globaler Exception-Handler: Fehler im UI anzeigen
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             Platform.runLater(() -> showError("Uncaught Exception", e));
         });
@@ -35,9 +37,7 @@ public class Main extends Application {
 
 
 
-            // FIX: Keine feste Größe! Nutze die Bildschirmgröße oder lass JavaFX es berechnen.
-            // Auf Android wird das Fenster automatisch maximiert.
-            // Für Desktop können wir eine Standardgröße als Fallback angeben, aber nicht erzwingen.
+            // Mobile: Bildschirmgröße, Desktop: Fallback
             Scene scene;
             
             // Prüfen, ob wir auf Android sind (Gluon Property)
@@ -46,21 +46,21 @@ public class Main extends Application {
                 Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
                 scene = new Scene(root, visualBounds.getWidth(), visualBounds.getHeight());
             } else {
-                // Desktop: Startgröße, aber skalierbar
-                scene = new Scene(root, 1700, 1100); 
+                // Desktop-Fallback-Größe
+                scene = new Scene(root, 1700, 1100);
             }
 
             stage.setTitle("Aim Trainer");
             stage.setScene(scene);
             
-            // Auf mobilen Geräten wichtig: Maximieren
-            /* if (os.contains("android")) { stage.setFullScreen(true); } */ // Gluon macht das meist automatisch
+            // Mobile: evtl. Vollbild (auskommentiert)
+            /* if (os.contains("android")) { stage.setFullScreen(true); } */
             
             stage.show();
 
         } catch (Throwable e) {
             // Fehler beim Laden (z.B. FXML nicht gefunden, DB Fehler im Controller)
-            e.printStackTrace(); // Logcat
+            LOGGER.log(Level.SEVERE, "Startup error", e);
             showError("Start Error", e);
         }
     }

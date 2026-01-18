@@ -29,11 +29,11 @@ public final class Target {
         this.friction = 0.99;
     }
 
-    // --- Movement update (bounce only) ---
+    // --- Bewegung aktualisieren (nur Bounce-Modus) ---
     public void update(double areaWidth, double areaHeight, Xorshift128Plus rng) {
         if (mode != Mode.BOUNCE) return;
     
-    // === ADD SUBSTEPPING ===
+    // === Substepping hinzufügen ===
     int substeps = 4;
     for (int i = 0; i < substeps; i++) {
         double subVx = vx / substeps;
@@ -42,7 +42,7 @@ public final class Target {
         pos = new Position(pos.x() + subVx, pos.y() + subVy);
         
         boolean hitwall=false; 
-        // Wall collisions
+        // Kollisionen mit Wänden
         if (pos.x() - radius < 0) { 
             pos = new Position(radius, pos.y()); 
             vx = -vx; 
@@ -72,7 +72,7 @@ public final class Target {
     vy *= friction;
 }
 
-    // --- Factories and placement helpers ---
+    // --- Fabriken und Platzierungs-Hilfen ---
     private static Position randomInBounds(Xorshift128Plus rng, double width, double height, double margin, double radius) {
         double minX = margin + radius;
         double minY = margin + radius;
@@ -172,7 +172,7 @@ public final class Target {
         return new Target(p, radius, Mode.RADIAL);
     }
 
-    // --- Accessors / mutators ---
+    // --- Zugriffsmethoden (Getter/Setter) ---
     public void markHit() { alive = false; }
     public boolean isAlive() { return alive; }
     public Position pos() { return pos; }

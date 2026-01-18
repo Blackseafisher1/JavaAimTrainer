@@ -7,8 +7,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseConnection {
+
+    private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
 
     private Connection connection;
     private static final String DB_NAME = "aimtrainer.db";
@@ -29,7 +33,7 @@ public class DatabaseConnection {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error connecting to database: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error connecting to database", e);
             throw new RuntimeException("Failed to connect to database", e);
         }
         return connection;
@@ -43,17 +47,15 @@ public class DatabaseConnection {
 
             createTables();
 
-            System.out.println(
-                "Database initialized at: " + new File(dbPath).getAbsolutePath()
-            );
+            LOGGER.info("Database initialized at: " + new File(dbPath).getAbsolutePath());
         } catch (SQLException e) {
-            System.err.println("Failed to initialize database: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Failed to initialize database", e);
         }
     }
 
     private void createTables() throws SQLException {
         try (Statement stmt = connection.createStatement()) {
-            // --- GAMES TABLE ---
+            // --- Tabelle: Spiele (games) ---
             stmt.execute(
                 "CREATE TABLE IF NOT EXISTS games (" +
                 "    game_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -68,7 +70,7 @@ public class DatabaseConnection {
                 ")"
             );
 
-            // --- BEST SCORES TABLE ---
+            // --- Tabelle: Bestwerte (best_scores) ---
             stmt.execute(
                 "CREATE TABLE IF NOT EXISTS best_scores (" +
                 "    mode TEXT PRIMARY KEY," +
@@ -85,7 +87,7 @@ public class DatabaseConnection {
                 stmt.execute("INSERT OR IGNORE INTO best_scores (mode) VALUES ('" + mode + "')");
             }
 
-            // --- PREFERENCES TABLE ---
+            // --- Tabelle: Einstellungen (preferences) ---
             stmt.execute(
                 "CREATE TABLE IF NOT EXISTS preferences (" +
                 "    mode TEXT DEFAULT 'BOUNCE'," +
@@ -95,16 +97,16 @@ public class DatabaseConnection {
                 "    effect TEXT DEFAULT 'EXPAND_CONTRACT'," +
                 "    custom_sound_path TEXT," +
                 "    hit_effects_enabled INTEGER DEFAULT 1," +
-                "    use_target INTEGER DEFAULT 0" + // NEU (0=false, 1=true)
+                "    use_target INTEGER DEFAULT 0" + // use_target: 0=false, 1=true
                 ")"
             );
 
-            // --- "MIGRATION" (Spalten hinzufügen, falls sie fehlen) ---
+            // --- Migration: Fehlende Spalten bei Bedarf hinzufügen ---
             try { stmt.execute("ALTER TABLE preferences ADD COLUMN custom_sound_path TEXT"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE preferences ADD COLUMN hit_effects_enabled INTEGER DEFAULT 1"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE preferences ADD COLUMN use_target INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
 
-            // --- DEFAULT PREFERENCES INSERT ---
+            // --- Standard-Einstellungen einfügen, falls leer ---
             String checkSql = "SELECT COUNT(*) FROM preferences";
             try (ResultSet rs = stmt.executeQuery(checkSql)) {
                 if (rs.next() && rs.getInt(1) == 0) {
@@ -125,7 +127,7 @@ public class DatabaseConnection {
         String effect, 
         String customSoundPath, 
         boolean hitEffectsEnabled,
-        boolean useTarget // NEU
+        boolean useTarget // added
     ) {}
 
     public Preferences getPreferences() {
@@ -140,11 +142,11 @@ public class DatabaseConnection {
                     rs.getString("effect"),
                     rs.getString("custom_sound_path"),
                     rs.getInt("hit_effects_enabled") == 1,
-                    rs.getInt("use_target") == 1 // NEU: int zu boolean
+                    rs.getInt("use_target") == 1 // int to boolean
                 );
             }
         } catch (SQLException e) {
-            System.err.println("Error fetching preferences: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Error fetching preferences", e);
         }
         return new Preferences("BOUNCE", 1.0, "CLASSIC", "MEDIUM", "EXPAND_CONTRACT", null, true, false);
     }
@@ -160,7 +162,7 @@ public void setPreferences(
     boolean hitEffectsEnabled,
     boolean useTarget 
 ) {
-    // FIX: "speed" statt "ball_speed"
+    // Use 'speed' column name
     String sql = "UPDATE preferences SET mode=?, speed=?, sound=?, size=?, effect=?, custom_sound_path=?, hit_effects_enabled=?, use_target=?";
     
     try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
@@ -176,7 +178,7 @@ public void setPreferences(
         int affected = pstmt.executeUpdate();
         
         if (affected == 0) {
-            // FIX: "speed" statt "ball_speed" und "use_target" statt "use_image" (falls du use_target in createTables hast)
+            // Ensure column names match current schema (speed, use_target)
             String insertSql = "INSERT INTO preferences (mode, speed, sound, size, effect, custom_sound_path, hit_effects_enabled, use_target) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement insertPstmt = getConnection().prepareStatement(insertSql)) {
                 insertPstmt.setString(1, mode);
@@ -191,7 +193,7 @@ public void setPreferences(
             }
         }
     } catch (SQLException e) {
-        System.err.println("Error saving preferences: " + e.getMessage());
+        LOGGER.log(Level.WARNING, "Error saving preferences", e);
     }
 }
 
@@ -210,7 +212,7 @@ public void setPreferences(
             pstmt.executeUpdate();
             updateBestScore(mode, score, accuracy, combo);
         } catch (SQLException e) {
-            System.err.println("Error saving game: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Error saving game", e);
         }
     }
 
@@ -224,7 +226,7 @@ public void setPreferences(
                 pstmt.setString(4, mode);
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                System.err.println("Error updating best score: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Error updating best score", e);
             }
         } else {
             String sql = "UPDATE best_scores SET total_games = total_games + 1 WHERE mode = ?";
@@ -232,7 +234,7 @@ public void setPreferences(
                 pstmt.setString(1, mode);
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                System.err.println("Error updating game count: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Error updating game count", e);
             }
         }
     }
@@ -247,7 +249,7 @@ public void setPreferences(
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error fetching best score: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Error fetching best score", e);
         }
         return 0;
     }
@@ -258,24 +260,24 @@ public void setPreferences(
             pstmt.setLong(1, gameId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting game: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Error deleting game", e);
             return false;
         }
     }
      
     public void clearHistory() {
-    // Löscht ALLE Zeilen aus der Tabelle 'games'
+  
     String sql = "DELETE FROM games";
     
-    // Optional: Damit die IDs wieder bei 1 anfangen (so sauber wie DROP/CREATE)
+    // sequenz zurücksetzen ( ids starten von 1)
     String resetSeq = "DELETE FROM sqlite_sequence WHERE name='games'"; 
 
-    try (Statement stmt = getConnection().createStatement()) {
+        try (Statement stmt = getConnection().createStatement()) {
         stmt.execute(sql);
         stmt.execute(resetSeq); // Nur nötig, wenn game_id wieder bei 1 starten soll
-        System.out.println("Verlauf erfolgreich gelöscht.");
+        LOGGER.info("Verlauf erfolgreich gelöscht.");
     } catch (SQLException e) {
-        System.err.println("Fehler beim Löschen: " + e.getMessage());
+        LOGGER.log(Level.WARNING, "Fehler beim Löschen", e);
     }
 }
 

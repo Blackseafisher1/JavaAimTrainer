@@ -1,10 +1,10 @@
-/* Root Styling */
+/* Grundstil */
 .root {
     -fx-background-color: #1b1a1a;
     -fx-font-family: "Arial";
 }
 
-/* Name Label */
+/* Namens-Label */
 .name-label {
     -fx-text-fill: linear-gradient(to right, #ffffff, #66d9ff, #a855f7, #dc6bff);
     -fx-font-size: 12px;
@@ -12,7 +12,7 @@
     -fx-padding: 5 0 0 0;
 }
 
-/* Title Label with Neon Effect */
+/* Titel-Label mit Neon-Effekt */
 .title-label {
     -fx-font-size: 32px;
     -fx-font-weight: bold;
@@ -21,7 +21,7 @@
     -fx-padding: 10 0 15 0;
 }
 
-/* Game Area */
+/* Spielbereich */
 .game-area {
     -fx-background-color: #0e0e0e;
     -fx-border-color: #333;
@@ -34,7 +34,7 @@
    
 }
 
-/* Target Styles (wird im Controller gesetzt) */
+/* Ziel-Styles (werden im Controller gesetzt) */
 .target {
     -fx-background-radius: 50%;
     -fx-cursor: crosshair;
@@ -61,7 +61,7 @@
     -fx-border-color: rgb(53, 0, 0);
 }
 
-/* Control Buttons */
+/* Steuerungs-Buttons */
 .control-button {
     -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2d2d2d);
     -fx-text-fill: white;
@@ -88,7 +88,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 4, 0, 0, 2);
 }
 
-/* Sound Controls */
+/* Sound-Steuerung */
 .sound-controls {
     -fx-alignment: center;
     -fx-spacing: 15;
@@ -113,7 +113,7 @@
     -fx-effect: dropshadow(gaussian, rgba(255, 209, 102, 0.5), 5, 0, 0, 0);
 }
 
-/* Sound Option Buttons - UPDATED */
+/* Sound-Options-Buttons - AKTUALISIERT */
 .sound-option {
     -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2d2d2d);
     -fx-text-fill: white;
@@ -133,7 +133,7 @@
     -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 5, 0, 0, 0);
 }
 
-/* Selected Sound Button - NEW */
+/* Ausgewählter Sound-Button - NEU */
 .sound-option-selected {
     -fx-background-color: linear-gradient(to bottom, #ffd166, #ffc145);
     -fx-text-fill: #1a1a1a;
@@ -144,7 +144,7 @@
     -fx-translate-y: -2;
 }
 
-/* Active sound option (alternative class name) */
+/* Aktive Sound-Option (alternative Klassenbezeichnung) */
 .sound-option.active {
     -fx-background-color: linear-gradient(to bottom, #ffd166, #ffc145);
     -fx-text-fill: #1a1a1a;
@@ -154,7 +154,7 @@
     -fx-border-width: 2;
 }
 
-/* Mini Buttons */
+/* Mini-Buttons */
 .mini-button {
     -fx-background-color: #1c1c1c;
     -fx-text-fill: #eee;
@@ -174,7 +174,7 @@
     -fx-border-color: #ffcc00;
 }
 
-/* Hit Effect Toggle Buttons - UPDATED */
+/* Treffer-Effekt Umschalter - AKTUALISIERT */
 .hit-effect-toggle {
     -fx-background-color: #1c1c1c;
     -fx-text-fill: #eee;
@@ -192,7 +192,7 @@
     -fx-effect: dropshadow(gaussian, red, 12, 0, 0, 0);
 }
 
-/* Hit Effect Toggle States - NEW */
+/* Zustände des Treffer-Effekt-Umschalters - NEU */
 .hit-effect-toggle-active {
     -fx-background-color: linear-gradient(to bottom, #48bb78, #38a169);
     -fx-text-fill: white;
@@ -211,7 +211,7 @@
     -fx-border-width: 1;
 }
 
-/* Slider */
+/* Schieberegler */
 .slider {
     -fx-pref-width: 200;
 }
@@ -226,7 +226,7 @@
     -fx-background-radius: 4;
 }
 
-/* Volume and Status Labels */
+/* Lautstärke- und Statusbeschriftungen */
 .volume-value, .file-label {
     -fx-text-fill: #ffd166;
     -fx-font-weight: bold;
@@ -249,7 +249,7 @@
     -fx-font-size: 12px;
 }
 
-/* Info Grid */
+/* Info-Grid */
 .info-grid {
     -fx-background-color: rgba(30, 30, 30, 0.8);
     -fx-padding: 20;
@@ -289,24 +289,24 @@
     -fx-effect: dropshadow(gaussian, rgba(6, 214, 160, 0.5), 20, 0, 0, 0);
 }
 
-/* Bottom Container */
+/* Unterer Bereich */
 .bottom-container {
     -fx-padding: 10 15 10 15;
 }
 
-/* Button Press Effect - NEW */
+/* Button-Drück-Effekt - NEU */
 .button-pressed {
     -fx-translate-y: 1;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 4, 0, 0, 2);
 }
 
-/* Focus Effects - NEW */
+/* Fokus-Effekte - NEU */
 .focused {
     -fx-border-color: #66d9ff;
     -fx-border-width: 2;
 }
 
-/* Game State Label - NEW */
+/* Spiel-Status-Label - NEU */
 .game-state-label {
     -fx-font-size: 24px;
     -fx-text-fill: white;
@@ -319,7 +319,7 @@
     -fx-border-width: 2px;
 }
 
-/* History Mode Styles - NEW */
+/* Styles für Verlaufsmodus - NEU */
 .history-display {
     -fx-background-color: rgba(0, 0, 0, 0.85);
     -fx-padding: 40px;
@@ -334,7 +334,7 @@
     -fx-font-weight: bold;
 }
 
-/* Smooth Transitions - NEW */
+/* Sanfte Übergänge - NEU */
 .transition-all {
     -fx-transition: all 0.2s ease;
 }

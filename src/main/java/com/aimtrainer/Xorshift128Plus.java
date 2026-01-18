@@ -1,10 +1,15 @@
 package com.aimtrainer;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 /**
- * Xorshift128+ random number generator.
- * Very fast, but NOT cryptographically secure.
+ * Xorshift128+ Zufallszahlengenerator.
+ * Sehr schnell, jedoch nicht kryptografisch sicher.
  */
 public final class Xorshift128Plus {
+
+  private static final Logger LOGGER = Logger.getLogger(Xorshift128Plus.class.getName());
 
   private long s0;
   private long s1;
@@ -17,7 +22,7 @@ public final class Xorshift128Plus {
     this.s1 = seed2;
   }
 
-  // Core algorithm: returns next 64-bit random number
+  // Kernalgorithmus: liefert die nächste 64-Bit-Zahl
   public long nextLong() {
     long x = s0;
     long y = s1;
@@ -29,12 +34,12 @@ public final class Xorshift128Plus {
     return s0 + s1;
   }
 
-  // Convenience: random int
+  // Hilfsmethode: zufälliges int
   public int nextInt() {
     return (int) nextLong();
   }
 
-  // Convenience: bounded int [0, bound)
+  // Hilfsmethode: begrenztes int im Bereich [0, bound)
   public int nextInt(int bound) {
     if (bound <= 0) throw new IllegalArgumentException(
       "bound must be positive"
@@ -43,27 +48,27 @@ public final class Xorshift128Plus {
     return (int) (r % bound);
   }
 
-  // Convenience: random double in [0,1)
+  // Hilfsmethode: zufälliges double im Bereich [0,1)
   public double nextDouble() {
     return (nextLong() >>> 11) * (1.0 / (1L << 53));
   }
 
   /**
-   * Generate a random radial position around a center point.
+   * Erzeugt eine zufällige radiale Position um einen Mittelpunkt.
    *
-   * @param centerX   X coordinate of the center
-   * @param centerY   Y coordinate of the center
-   * @param maxRadius Maximum radius distance from center
-   * @return double[] {x, y} coordinates
+   * @param centerX   X-Koordinate des Mittelpunkts
+   * @param centerY   Y-Koordinate des Mittelpunkts
+   * @param maxRadius Maximale Distanz zum Mittelpunkt
+   * @return double[] {x, y} Koordinaten
    */
   public double[] nextRadialPosition(
     double centerX,
     double centerY,
     double maxRadius
   ) {
-    // Random angle between 0 and 2π
+    // Zufälliger Winkel zwischen 0 und 2π
     double angle = nextDouble() * 2.0 * Math.PI;
-    // Random distance between 0 and maxRadius
+    // Zufällige Distanz zwischen 0 und maxRadius
     double distance = nextDouble() * maxRadius;
 
     double x = centerX + Math.cos(angle) * distance;
@@ -72,14 +77,14 @@ public final class Xorshift128Plus {
     return new double[] { x, y };
   }
 
-  // Demo
+  // Beispiel / Demo
   public static void main(String[] args) {
     Xorshift128Plus rng = new Xorshift128Plus(12345L, 67890L);
 
-    // Generate 5 radial positions around (400, 300) with radius 200
+    // Erzeugt 5 radiale Positionen um (400,300) mit Radius 200
     for (int i = 0; i < 5; i++) {
       double[] pos = rng.nextRadialPosition(400, 300, 200);
-      System.out.printf("Target at (%.2f, %.2f)%n", pos[0], pos[1]);
+      LOGGER.log(Level.INFO, String.format("Target at (%.2f, %.2f)", pos[0], pos[1]));
     }
   }
 }

@@ -5,6 +5,8 @@ import com.aimtrainer.Target.Mode;
 import java.security.SecureRandom;
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -30,19 +31,21 @@ import javafx.util.Duration;
 
 public class Controller {
 
+  private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
+
    // Expliziter leerer Konstruktor für FXMLLoader
     public Controller() {
-        System.out.println("DEBUG: Controller Constructor called");
+        LOGGER.info("Controller constructor called");
     }
 
 
   // ============================================================================================
-  // FXML INJECTIONS (UI ELEMENTS)
+  // FXML-Injektionen (UI-Elemente)
   // ============================================================================================
   @FXML
   private Pane gameArea;
 
-  // Labels
+  // Beschriftungen (Labels)
   @FXML
   private Label scoreLabel;
 
@@ -70,7 +73,7 @@ public class Controller {
   @FXML
   private Label volumeLabel;
 
-  // Buttons & Inputs
+  // Schaltflächen und Eingaben
   @FXML
   private Button modeBtn;
 
@@ -84,9 +87,9 @@ public class Controller {
   private TextField speedButton;
 
   @FXML
-  private Button toggleTargetBtn; // New Target Image Toggle
+  private Button toggleTargetBtn; // Umschalter für Zielbildmodus
 
-  // Sound Buttons
+  // Schaltflächen: Soundauswahl
   @FXML
   private Button classicBtn, beepBtn, popBtn, laserBtn, customBtn;
 
@@ -95,7 +98,7 @@ public class Controller {
  @FXML
   private Button historyBtn;
 
-  // Effect Buttons
+  // Schaltflächen: Effekte
   @FXML
   private Button toggleHitEffectBtn;
 
@@ -103,7 +106,7 @@ public class Controller {
   private Button hitEffectOnOffBtn;
 
   // ============================================================================================
-  // CORE SYSTEM VARIABLES (DB, RNG, MANAGERS)
+  // Kernvariablen (DB, RNG, Manager)
   // ============================================================================================
   private DatabaseConnection dbConnection;
   private  SoundManager soundManager ;
@@ -119,32 +122,32 @@ public class Controller {
   private final Map<Target, Circle> viewMap = new HashMap<>();
 
   // ============================================================================================
-  // GAME CONFIGURATION & STATE
+  // Spielkonfiguration und Zustand
   // ============================================================================================
   private Target.Mode currentMode = Target.Mode.BOUNCE;
   private TargetSize currentSize = TargetSize.MEDIUM;
   private double margin = 20;
   private double targetRadius = 45;
 
-  // Rendering Settings
+  // Darstellungseinstellungen
   private boolean useTargetImage = false;
   private Image targetImage;
   private HitEffect currentHitEffect = HitEffect.EXPAND_CONTRACT;
   private boolean hitEffectsEnabled = true;
 
-  // Game Loop & Logic
+  // Spielschleife und Logik
   private AnimationTimer timer;
   private boolean gameActive = false;
   private long gameStartTime;
   private final int gameDuration = 60; // seconds
   private Label gameStateLabel;
 
-  // Input State
+  // Eingabestatus
   private Point2D currentMousePosition = new Point2D(0, 0);
   private boolean mKeyPressed = false;
   private Scene scene;
 
-  // Statistics
+  // Statistiken
   private int score = 0;
   private int missclicks = 0;
   private int combo = 0;
@@ -154,12 +157,12 @@ public class Controller {
   private long lastHitTime = 0;
   private SoundOption currentSound = SoundOption.CLASSIC;
 
-  // History Mode State
+  // Zustand: Verlauf-Modus
   private List<GameRecord> gameHistory = new ArrayList<>();
   private int historyIndex = 0;
   private boolean historyMode = false;
 
-  // Enums
+  // Enumerationen
   private enum TargetSize {
     SMALL,
     MEDIUM,
@@ -172,58 +175,58 @@ public class Controller {
   }
 
   // ============================================================================================
-  // INITIALIZATION & SETUP
+  // Initialisierung und Setup
   // ============================================================================================
   @FXML
   
    public void initialize() {
-    System.out.println("DEBUG: Controller initialize START");
+    LOGGER.info("Controller initialize START");
     
-    // Alles in einen großen Try-Catch Block, damit Fehler angezeigt werden!
+      // Alles in einem Try-Catch-Block, damit Fehler angezeigt werden
     try {
-        // 1. Manager & DB initialisieren (Lazy Loading)
+        // 1. Manager und Datenbank initialisieren (Lazy Loading)
         manager = new TargetManager(rng);
         
-        System.out.println("DEBUG: Init DB...");
+        LOGGER.info("Init DB...");
         try {
             dbConnection = new DatabaseConnection();
         } catch (Exception e) {
-            System.err.println("DB Init Failed: " + e.getMessage());
-            // Optional: Alert zeigen, aber weitermachen
+          LOGGER.log(Level.WARNING, "DB Init Failed", e);
+            // Optional: Warnung anzeigen, aber fortfahren
         }
 
-        System.out.println("DEBUG: Init SoundManager...");
+        LOGGER.info("Init SoundManager...");
         try {
             soundManager = SoundManager.getInstance();
         } catch (Exception e) {
-            System.err.println("SoundManager Init Failed: " + e.getMessage());
+          LOGGER.log(Level.WARNING, "SoundManager init failed", e);
         }
 
         // 2. Assets laden (mit Fehlerprüfung)
-        System.out.println("DEBUG: Load Image...");
+        LOGGER.info("Load Image...");
         try {
           var imgStream = getClass().getResourceAsStream("/images/ball3.png");
           if (imgStream != null) {
               targetImage = new Image(imgStream);
-          } else {
-              System.err.println("WARNING: Image /images/ball3.png not found!");
-          }
+            } else {
+              LOGGER.warning("Image /images/ball3.png not found!");
+            }
         } catch (Exception e) {
-          System.err.println("Could not load target image: " + e.getMessage());
+          LOGGER.log(Level.WARNING, "Could not load target image", e);
         }
 
-        // 3. Daten laden (Nur wenn DB da ist)
+        // 3. Daten laden (nur wenn DB verfügbar)
         if (dbConnection != null) {
-            try { loadPreferences(); } catch (Exception e) { System.err.println("Prefs load error: " + e); }
-            try { loadBestScore(); } catch (Exception e) { System.err.println("Score load error: " + e); }
-            try { loadGameHistory(); } catch (Exception e) { System.err.println("History load error: " + e); }
+            try { loadPreferences(); } catch (Exception e) { LOGGER.log(Level.WARNING, "Prefs load error", e); }
+            try { loadBestScore(); } catch (Exception e) { LOGGER.log(Level.WARNING, "Score load error", e); }
+            try { loadGameHistory(); } catch (Exception e) { LOGGER.log(Level.WARNING, "History load error", e); }
         }
 
-        // 4. UI Init
+        // 4. UI initialisieren
         initUI();
         initKeyListeners();
 
-        // 5. Game Loop starten
+        // 5. Spielschleife starten
         timer = new AnimationTimer() {
           public void handle(long now) {
             if (gameActive) {
@@ -234,11 +237,11 @@ public class Controller {
         };
         timer.start();
         
-        System.out.println("DEBUG: Controller initialize DONE");
+        LOGGER.info("Controller initialize DONE");
 
     } catch (Throwable t) {
-        // DER RETTER: Zeigt den wahren Fehler auf dem Handy an!
-        t.printStackTrace();
+        // Fehlerbehandlung: Zeigt Fehlerdetails in einem Dialog an
+        LOGGER.log(Level.SEVERE, "Initialization error", t);
         Platform.runLater(() -> {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Init Error");
@@ -250,7 +253,7 @@ public class Controller {
   }
 
   private void initUI() {
-    // Game State Label setup
+    // Game-State-Label einrichten
     gameStateLabel = new Label("Click anywhere to start!");
     gameStateLabel.setStyle(
       "-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"
@@ -258,13 +261,13 @@ public class Controller {
     gameArea.getChildren().add(gameStateLabel);
     centerGameStateLabel();
 
-    // Button Listeners - Main
+    // Button-Listener - Hauptfunktionen
     modeBtn.setOnAction(e -> switchMode());
     sizeBtn.setOnAction(e -> changeTargetSize());
     stopBtn.setOnAction(e -> toggleGameState());
     toggleTargetBtn.setOnAction(e -> toggleTargetImageMode());
 
-    // Button Listeners - Sound
+    // Button-Listener - Sound
     classicBtn.setOnAction(e -> setSound(SoundOption.CLASSIC));
     beepBtn.setOnAction(e -> setSound(SoundOption.BEEP));
     popBtn.setOnAction(e -> setSound(SoundOption.POP));
@@ -272,11 +275,11 @@ public class Controller {
     customBtn.setOnAction(e -> setSound(SoundOption.CUSTOM));
     uploadBtn.setOnAction(e -> handleUpload());
 
-    // Button Listeners - Effects
+    // Button-Listener - Effekte
     toggleHitEffectBtn.setOnAction(e -> switchHitEffect());
     hitEffectOnOffBtn.setOnAction(e -> toggleHitEffects());
 
-    // Initial UI Updates
+    // Erste UI-Aktualisierungen
     updateSoundButtonSelection();
     updateSizeButtonText();
     updateHitEffectButtons();
@@ -284,7 +287,7 @@ public class Controller {
     modeBtn.setText("Mode: " + currentMode.name());
     modeLabel.setText(currentMode.name());
 
-    // Mouse Handlers
+    // Maus-Handler
     gameArea.setOnMouseClicked(e -> handleMouseClick(e.getX(), e.getY()));
     gameArea.setOnMouseMoved(e ->
       currentMousePosition = new Point2D(e.getX(), e.getY())
@@ -293,7 +296,7 @@ public class Controller {
       if (!gameArea.isFocused() && !historyMode) gameArea.requestFocus();
     });
 
-    // Window Resize Listeners
+    // Listener für Fenstergrößenänderung
     gameArea.widthProperty().addListener((obs, o, n) -> centerGameStateLabel());
     gameArea
       .heightProperty()
@@ -304,7 +307,7 @@ public class Controller {
   }
 
   private void initKeyListeners() {
-    // History Navigation Keys
+    // Tasten für Verlaufsnavigation
     gameArea.setOnKeyPressed(event -> {
       if (historyMode) {
         switch (event.getCode()) {
@@ -326,7 +329,7 @@ public class Controller {
       }
     });
 
-    // Global Keys (nach Scene Load)
+    // Globale Tasten (nach Laden der Scene)
     Platform.runLater(() -> {
       scene = gameArea.getScene();
       if (scene != null) setupGlobalKeyBindings(scene);
@@ -334,11 +337,11 @@ public class Controller {
   }
 
   private void setupGlobalKeyBindings(Scene scene) {
-    // KEY PRESS
+    // Tastendruck-Verarbeitung
     scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
       if (event.getTarget() instanceof TextInputControl) return;
 
-      // Shoot (M)
+      // Abschuss (M)
       if (
         event.getCode() == KeyCode.M &&
         gameActive &&
@@ -354,7 +357,7 @@ public class Controller {
         return;
       }
 
-      // Volume (W/S)
+      // Lautstärke (W/S)
       if (event.getCode() == KeyCode.W) {
         changeVolume(0.05);
         event.consume();
@@ -365,7 +368,7 @@ public class Controller {
         return;
       }
 
-      // Controls (H, ESC, ENTER)
+      // Steuerung (H, ESC, ENTER)
       if (event.getCode() == KeyCode.H && !gameActive && !historyMode) {
         enterHistoryMode();
         event.consume();
@@ -385,14 +388,17 @@ public class Controller {
       }
     });
 
-    // KEY RELEASE (Reset M)
+    // Taste losgelassen (M zurücksetzen)
     scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
       if (event.getCode() == KeyCode.M) mKeyPressed = false;
     });
   }
 
+
+
+
   // ============================================================================================
-  // GAME LOGIC & LOOP
+  // Spiel-Logik und Schleife
   // ============================================================================================
   private void startNewGame() {
     if (gameActive) return;
@@ -435,7 +441,7 @@ public class Controller {
     if (targets.isEmpty()) return;
     double width = gameArea.getWidth(), height = gameArea.getHeight();
 
-    // 2. Update Physics & Cleanup
+    // 2. Physik aktualisieren und Aufräumen
     List<Target> toRemove = new ArrayList<>();
     for (Target t : new ArrayList<>(targets)) {
       if (t.mode() == Target.Mode.BOUNCE) t.update(width, height, rng);
@@ -477,7 +483,7 @@ public class Controller {
     if (!gameActive && !historyMode) {
       startNewGame();
     } else if (gameActive) {
-      // Ruft SOFORT die Treffer-Prüfung auf
+      // Führt sofort die Trefferprüfung aus
       handleGameAreaClick(x, y);
     }
   }
@@ -485,14 +491,14 @@ public class Controller {
   private void onTargetHit(Target t) {
     soundManager.playHit();
 
-    // Logic: Reaction Time
+    // Logik: Reaktionszeit
     long currentTime = System.currentTimeMillis();
     if (lastHitTime > 0) {
       totalReactionTime += (currentTime - lastHitTime) / 1000.0;
     }
     lastHitTime = currentTime;
 
-    // Logic: Visual Removal
+    // Logik: Visuelle Entfernung
     if (hitEffectsEnabled) createHitEffect(
       t.pos().x(),
       t.pos().y(),
@@ -504,14 +510,14 @@ public class Controller {
     targets.remove(t);
     t.markHit();
 
-    // Logic: Score
+    // Logik: Punktevergabe
     score += 10;
     hits++;
     combo++;
     if (combo > maxCombo) maxCombo = combo;
     updateLabels();
 
-    // Logic: Respawn
+    // Logik: Nachspawnen
     handleRespawn(t);
   }
 
@@ -602,36 +608,36 @@ public class Controller {
   }
 
   // ============================================================================================
-  // VISUALS & RENDERING (TARGETS & EFFECTS)
+  // Darstellung & Rendering (Ziele & Effekte)
   // ============================================================================================
   private void addTargetToScene(Target t) {
     Circle circle = new Circle(t.pos().x(), t.pos().y(), t.radius());
     boolean isImageMode =
       useTargetImage && targetImage != null && !targetImage.isError();
 
-    // Appearance (Fill/Stroke)
+    // Aussehen (Füllung/Kontur)
     if (isImageMode) {
       circle.setFill(new ImagePattern(targetImage));
       circle.setStroke(Color.TRANSPARENT);
 
       RotateTransition rt = new RotateTransition();
-      rt.setNode(circle); // Welches Objekt soll sich drehen?
-      rt.setDuration(Duration.seconds(2)); // Dauer für EINE volle Umdrehung
-      rt.setByAngle(360); // Drehung um 360 Grad
-      rt.setCycleCount(Animation.INDEFINITE); // Unendlich oft wiederholen
+      rt.setNode(circle); // Zielobjekt für Rotation
+      rt.setDuration(Duration.seconds(2)); // Dauer für eine volle Umdrehung
+      rt.setByAngle(360); // 360° Rotation
+      rt.setCycleCount(Animation.INDEFINITE); // Endlosschleife
 
-      // Linearer Interpolator sorgt für gleichmäßige Geschwindigkeit
-      // (Ohne das bremst der Kreis am Ende jeder Runde kurz ab)
+      // Linearer Interpolator für gleichmäßige Geschwindigkeit
+      // (vermeidet kurzes Abbremsen am Rundenende)
       rt.setInterpolator(Interpolator.LINEAR);
 
-      // 3. Starten
+      // Starten der Animation
       rt.play();
     } else {
       circle.setFill(t.mode() == Target.Mode.BOUNCE ? Color.ORANGE : Color.RED);
       circle.setStroke(Color.DARKRED);
     }
 
-    // Scale Animations
+    // Skalierungs-Animationen
     ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), circle);
     scaleUp.setToX(1.10);
     scaleUp.setToY(1.10);
@@ -644,12 +650,12 @@ public class Controller {
     circle.setOnMouseEntered(e -> scaleUp.play());
     circle.setOnMouseExited(e -> scaleDown.play());
 
-    // Stroke Width
+    // Strichstärke
     double strokeWidth = isImageMode ? 0 : getStrokeWidthForSize();
     circle.setStrokeWidth(strokeWidth);
     circle.setStrokeType(StrokeType.INSIDE);
 
-     // Glow Effect
+    // Leuchteffekt
     if(useTargetImage ==false){
      DropShadow glow = new DropShadow();
      glow.setColor(Color.WHITE);
@@ -715,7 +721,7 @@ public class Controller {
     }
   }
 
-  // --- Effects Helper ---
+  // --- Hilfsfunktionen: Effekte ---
   private void createHitEffect(double x, double y, double radius) {
     if (
       currentHitEffect == HitEffect.EXPAND_CONTRACT
@@ -800,12 +806,13 @@ public class Controller {
       pt.play();
     }
   }
+     
 
   // ============================================================================================
-  // SETTINGS & CONFIGURATION (MODES, SIZES, SOUNDS)
+  // Einstellungen & Konfiguration (Modi, Größen, Sounds)
   // ============================================================================================
 
-  // --- Mode ---
+  // --- Modus ---
   private void switchMode() {
     switch (currentMode) {
       case SNIPER -> currentMode = Target.Mode.RADIAL;
@@ -818,7 +825,7 @@ public class Controller {
     if (gameActive) stopGame(false);
   }
 
-  // --- Size ---
+  // --- Größe ---
   private void changeTargetSize() {
     switch (currentSize) {
       case SMALL -> {
@@ -844,7 +851,7 @@ public class Controller {
   private void setSound(SoundOption option) {
     currentSound = option;
     if (option == SoundOption.CUSTOM && !soundManager.hasCustomSound()) {
-      System.out.println("Warning: No custom sound loaded.");
+      LOGGER.warning("No custom sound loaded.");
     }
     soundManager.playSound(currentSound);
     soundManager.setCurrentSound(currentSound);
@@ -867,7 +874,7 @@ public class Controller {
     );
   }
 
-  // --- Effects ---
+  // --- Effekte ---
   private void switchHitEffect() {
     currentHitEffect = (currentHitEffect == HitEffect.EXPAND_CONTRACT)
       ? HitEffect.SPARKLE
@@ -882,7 +889,7 @@ public class Controller {
     updateHitEffectButtons();
   }
 
-  // --- Target Image ---
+  // --- Zielbild ---
   private void toggleTargetImageMode() {
     useTargetImage = !useTargetImage;
     saveCurrentPreferences();
@@ -915,7 +922,7 @@ public class Controller {
     gameArea.requestFocus();
   }
 
-  // --- UI Update Helpers ---
+  // --- UI-Aktualisierungs-Hilfen ---
   private void updateSizeButtonText() {
     sizeBtn.setText(
       "Size: " + currentSize.toString() + " (" + (int) targetRadius + " px)"
@@ -988,7 +995,7 @@ public class Controller {
   }
 
   // ============================================================================================
-  // DATA PERSISTENCE & HISTORY
+  // Datenpersistenz & Verlauf
   // ============================================================================================
   private void loadPreferences() {
     DatabaseConnection.Preferences prefs = dbConnection.getPreferences();
@@ -1086,7 +1093,7 @@ public class Controller {
   public void enterHistoryMode() {
     loadGameHistory();
     if (gameHistory.isEmpty()) {
-      System.out.println("No history.");
+      LOGGER.info("No history.");
       return;
     }
     historyMode = true;
@@ -1118,7 +1125,7 @@ public class Controller {
         String tSize = "MEDIUM";
         try {
           tSize = rs.getString("target_size");
-        } catch (Exception e) {}
+        } catch (Exception e) { LOGGER.log(Level.FINE, "Ignored exception", e); }
         gameHistory.add(
           new GameRecord(
             rs.getLong("game_id"),
@@ -1134,23 +1141,23 @@ public class Controller {
         );
       }
     } catch (Exception e) {
-      System.err.println("Load Error: " + e.getMessage());
+      LOGGER.log(Level.WARNING, "Load Error", e);
     }
   }
 
    // ============================================================================================
-// TOUCH-FREUNDLICHE HISTORY NAVIGATION (ERSETZEN SIE DIE ALTE METHODE DAMIT)
-// ============================================================================================
-// ============================================================================================
-// FINALE NAVIGATIONS-METHODE MIT "DELETE ALL"
-// ============================================================================================
+ // Touch-freundliche Verlaufsnavigation (ersetzt ältere Methode)
+ // ============================================================================================
+ // ============================================================================================
+ // Finale Navigationsmethode mit "Alles löschen"
+ // ============================================================================================
 private void showCurrentHistory() {
     if (gameHistory.isEmpty()) return;
     
     clearGameArea();
     GameRecord current = gameHistory.get(historyIndex);
 
-    // Hauptcontainer
+    // Haupt-Container
     javafx.scene.layout.VBox mainContainer = new javafx.scene.layout.VBox(15);
     mainContainer.setAlignment(javafx.geometry.Pos.CENTER);
     mainContainer.layoutXProperty().bind(gameArea.widthProperty().subtract(mainContainer.widthProperty()).divide(2));
@@ -1167,8 +1174,8 @@ private void showCurrentHistory() {
     historyLabel.setWrapText(true);
     historyLabel.maxWidthProperty().bind(gameArea.widthProperty().multiply(0.9)); 
     
-        // B. Navigation Buttons (Pfeile & Einzel-Löschen)
-    // Verwende Unicode-Escapes für Sicherheit gegen Encoding-Fehler
+        // B. Navigations-Buttons (Pfeile & Einzel-Löschen)
+      // Unicode-Escapes nutzen, um Encoding-Probleme zu vermeiden
     Button btnPrev = new Button("\u25C4"); // Linker Pfeil
     Button btnNext = new Button("\u25BA"); // Rechter Pfeil
     Button btnDel  = new Button("\u274C"); // Rotes Kreuz (X) statt Mülleimer-Emoji (sicherer)
@@ -1188,13 +1195,13 @@ private void showCurrentHistory() {
     javafx.scene.layout.HBox navBar = new javafx.scene.layout.HBox(20, btnPrev, btnDel, btnNext);
     navBar.setAlignment(javafx.geometry.Pos.CENTER);
 
-    // C. Untere Leiste (Close & CLEAR ALL)
+    // C. Untere Leiste (Zurück & Alles löschen)
     Button btnClose = new Button("Back");
     btnClose.setStyle("-fx-font-size: 16px; -fx-min-height: 40px; -fx-min-width: 100px; -fx-base: #222; -fx-text-fill: #aaa;");
     btnClose.setOnAction(e -> exitHistoryMode());
 
-    // DER NEUE BUTTON
-    // \u26A0 ist das Warn-Dreieck
+    // Neuer Button
+    // \u26A0 ist das Warnsymbol
     Button btnClearAll = new Button("\u26A0 Clear All History");
     btnClearAll.setStyle("-fx-font-size: 16px; -fx-min-height: 40px; -fx-base: red; -fx-text-fill: white; -fx-font-weight: bold;");
     btnClearAll.setOnAction(e -> deleteHistory()); 
@@ -1203,7 +1210,7 @@ private void showCurrentHistory() {
     javafx.scene.layout.HBox bottomBar = new javafx.scene.layout.HBox(20, btnClose, btnClearAll);
     bottomBar.setAlignment(javafx.geometry.Pos.CENTER);
 
-    // D. Zusammenbauen
+    // D. Zusammenstellen der Anzeige
     Label pageInfo = new Label(String.format("Game %d / %d", historyIndex + 1, gameHistory.size()));
     pageInfo.setStyle("-fx-text-fill: gold; -fx-font-weight: bold;");
 
@@ -1249,7 +1256,7 @@ private void showCurrentHistory() {
 
     Alert alert = new Alert(
       Alert.AlertType.CONFIRMATION,
-      "Delet Complet History"
+      "Delete Complete History"
     );
     alert.setHeaderText("Delete History?");
 
@@ -1260,7 +1267,7 @@ private void showCurrentHistory() {
   }
 
   // ============================================================================================
-  // CONFIG VALUES (CONSTANTS)
+  // Konfigurationswerte (Konstanten)
   // ============================================================================================
   private double getStrokeWidthForSize() {
     return switch (currentSize) {
@@ -1342,7 +1349,7 @@ private void showCurrentHistory() {
     };
   }
 
-  // --- INNER CLASS: GAME RECORD ---
+  // --- Innere Klasse: Spiel-Eintrag (GameRecord) ---
   public static class GameRecord {
 
     long gameId;

@@ -21,7 +21,7 @@
         <URL value="@aimtrainer.css" /> 
     </stylesheets>
     
-    <!-- Top Section -->
+    <!-- Obere Sektion -->
     <top>
         <VBox alignment="CENTER" spacing="5">
             <Label fx:id="nameLabel" styleClass="name-label" text="by Ege | @KARADENIZ, EGE™  Steuerung: Tastatur M oder Maustaste um zu Schießen(Maus registriert beim loslassen) Historie öffnen mit H" />
@@ -33,7 +33,7 @@
     <Pane fx:id="gameArea" styleClass="game-area" prefWidth="1000">
     </Pane>
 </center>
-    <!-- Bottom - Responsive Layout -->
+    <!-- Unterer Bereich - Responsive Layout -->
     <bottom>
         <VBox spacing="15" styleClass="bottom-container">
             <padding>
@@ -42,7 +42,7 @@
             
           
 
-            <!-- Control Buttons (always horizontal) -->
+            <!-- Steuerungs-Schaltflächen (immer horizontal) -->
             <HBox alignment="CENTER" spacing="15" styleClass="controls">
                 
                    <Button fx:id="historyBtn" styleClass="control-button" text="Open History"  onAction="#enterHistoryMode"/>  
@@ -54,10 +54,10 @@
           
             </HBox>
             
-            <!-- MAIN CONTAINER: All three sections in one FlowPane -->
+            <!-- HAUPT-BEHÄLTER: Alle drei Bereiche in einem FlowPane -->
             <FlowPane fx:id="mainBottomFlowPane" alignment="CENTER" hgap="15" prefWrapLength="1200" vgap="15">
                 
-                <!-- 1. Sound Settings Panel -->
+                <!-- 1. Sound-Einstellungsbereich -->
                 <VBox alignment="CENTER" maxWidth="420" minWidth="380" spacing="8" styleClass="sound-panel">
                     <Label styleClass="panel-title" text="Sound Settings / Target Appearance" />
                     
@@ -75,7 +75,7 @@
                     <Button fx:id="toggleTargetBtn" styleClass="mini-button" text="Switch to Image" />
                 </VBox>
                 
-                <!-- 2. Volume Control Panel -->
+                <!-- 2. Lautstärke-Regler -->
                 <VBox alignment="CENTER" maxWidth="350" minWidth="300" spacing="8" styleClass="sound-panel">
                     <Label styleClass="panel-title" text="Volume Control" />
                     
@@ -89,7 +89,7 @@
                     <Button fx:id="hitEffectOnOffBtn" styleClass="mini-button hit-effect-toggle" text="Turn hiteffects OFF" />
                 </VBox>
                 
-                <!-- 3. Stats Grid (as a single container) -->
+                <!-- 3. Statistik-Grid (als einzelner Container) -->
                 <GridPane hgap="15" maxWidth="800" minWidth="600" styleClass="stats-grid" vgap="15">
                     <columnConstraints>
                         <ColumnConstraints percentWidth="25" />
@@ -102,37 +102,37 @@
                         <RowConstraints percentHeight="50" />
                     </rowConstraints>
                     
-                    <!-- Time Left -->
+                    <!-- Verbleibende Zeit -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="0" GridPane.rowIndex="0">
                         <Label text="Time Left:" />
                         <Label fx:id="timeLabel" styleClass="info-value" text="60" />
                     </VBox>
                     
-                    <!-- Score -->
+                    <!-- Punktestand -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="1" GridPane.rowIndex="0">
                         <Label text="Score:" />
                         <Label fx:id="scoreLabel" styleClass="info-value" text="0" />
                     </VBox>
                     
-                    <!-- Missclicks -->
+                    <!-- Fehlklicks -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="2" GridPane.rowIndex="0">
                         <Label text="Missclicks:" />
                         <Label fx:id="missclicksLabel" styleClass="info-value" text="0" />
                     </VBox>
                     
-                    <!-- Best Score -->
+                    <!-- Bestwert -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="3" GridPane.rowIndex="0">
                         <Label text="Best Score:" />
                         <Label fx:id="bestScoreLabel" styleClass="info-value best-score" text="0" />
                     </VBox>
                     
-                    <!-- Mode -->
+                    <!-- Modus -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="0" GridPane.rowIndex="1">
                         <Label text="Mode:" />
                         <Label fx:id="modeLabel" styleClass="info-value" text="Single" />
                     </VBox>
                     
-                    <!-- Accuracy -->
+                    <!-- Genauigkeit -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="1" GridPane.rowIndex="1">
                         <Label text="Accuracy:" />
                         <Label fx:id="accuracyLabel" styleClass="info-value" text="0%" />
@@ -144,7 +144,7 @@
                         <Label fx:id="comboLabel" styleClass="info-value" text="0" />
                     </VBox>
                     
-                    <!-- Avg Time -->
+                    <!-- Durchschnittszeit -->
                     <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="3" GridPane.rowIndex="1">
                         <Label text="Avg Time:" />
                         <Label fx:id="avgTimeLabel" styleClass="info-value" text="0.00s" />

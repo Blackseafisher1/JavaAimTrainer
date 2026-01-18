@@ -3,16 +3,20 @@ package com.aimtrainer;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.media.AudioClip;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class SoundManager {
 
-    // Static instance für Singleton Pattern
+    // Singleton-Instanz
     private static SoundManager instance;
 
-    // Public method um die einzige Instanz zu bekommen
+    private static final Logger LOGGER = Logger.getLogger(SoundManager.class.getName());
+
+    // Gibt die Singleton-Instanz zurück
     public static SoundManager getInstance() {
         if (instance == null) {
             instance = new SoundManager();
@@ -23,20 +27,20 @@ public class SoundManager {
     private SoundOption currentSoundOption = SoundOption.CLASSIC;
     private AudioClip wallHitSound;
     
-    // NEU: Speichert den Pfad zur Custom-Datei
+    // Speichert den Pfad für benutzerdefinierte Sounds
     private String customSoundPath = null;
-    
-    // NEU: Speichert den geladenen Custom Clip
+
+    // Zwischengespeicherter AudioClip für benutzerdefinierte Sounds
     private AudioClip customAudioClip = null;
-    
-    // NEU: Volume Variable (da wir stop() entfernen, müssen wir volume hier verwalten)
+
+    // Lautstärkevariable
     private double volume = 0.5;
 
     public String getCustomSoundPath() {
         return customSoundPath;
     }
 
-    // Private constructor (Singleton)
+    // Privater Konstruktor (Singleton)
     private SoundManager() {
         try {
             URL wallHitUrl = SoundManager.class.getResource("/sounds/wood.mp3");
@@ -44,14 +48,14 @@ public class SoundManager {
                 wallHitSound = new AudioClip(wallHitUrl.toString());
                 wallHitSound.setVolume(volume);
             } else {
-                System.err.println("Wall hit sound not found: /sounds/wood.mp3");
+                LOGGER.warning("Wall hit sound not found: /sounds/wood.mp3");
             }
         } catch (Exception e) {
-            System.err.println("Could not load wall hit sound: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Could not load wall hit sound", e);
         }
     }
 
-    // ... (FileChooser Methoden bleiben gleich) ...
+    // ... (FileChooser-Methoden bleiben unverändert) ...
     public boolean chooseCustomSound(Stage ownerStage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Wähle einen Sound");
@@ -66,7 +70,7 @@ public class SoundManager {
                 setCustomSoundPath(fileUrl);
                 return true;
             } catch (MalformedURLException e) {
-                System.err.println("Fehler beim Laden der Datei: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Fehler beim Laden der Datei", e);
             }
         }
         return false;
@@ -75,14 +79,14 @@ public class SoundManager {
     public void setCustomSoundPath(String url) {
         this.customSoundPath = url;
         this.customAudioClip = null; 
-        System.out.println("Custom Sound gesetzt auf: " + url);
+        LOGGER.info("Custom Sound gesetzt auf: " + url);
     }
     
     public boolean hasCustomSound() {
         return customSoundPath != null;
     }
 
-    // ... (Volume Methoden - Empfohlen hinzuzufügen) ...
+    // Methoden zur Lautstärkeregelung
     public void setVolume(double v) {
         this.volume = Math.max(0.0, Math.min(1.0, v));
         if (wallHitSound != null) wallHitSound.setVolume(volume);
@@ -101,7 +105,7 @@ public class SoundManager {
     public double getVolume() { return volume; }
 
 
-    // === PLAY LOGIK (KORRIGIERT) ===
+    // Abspiel-Logik
 
     public void setCurrentSound(SoundOption soundOption) {
         this.currentSoundOption = soundOption;
@@ -143,7 +147,7 @@ public class SoundManager {
     
     private void playCustomSound() {
         if (customSoundPath == null) {
-            System.out.println("Kein Custom Sound ausgewählt!");
+            LOGGER.info("Kein Custom Sound ausgewählt!");
             return;
         }
         
@@ -152,15 +156,13 @@ public class SoundManager {
                 customAudioClip = new AudioClip(customSoundPath);
                 customAudioClip.setVolume(volume);
             } catch (Exception e) {
-                System.err.println("Fehler beim Abspielen des Custom Sounds: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Fehler beim Abspielen des Custom Sounds", e);
                 return;
             }
         }
         
         if (customAudioClip != null) {
-            // FIX: KEIN stop() hier!
-            // if (customAudioClip.isPlaying()) customAudioClip.stop(); <--- GELÖSCHT
-            
+            // Vor dem Abspielen nicht stoppen; überlappendes Abspielen erlauben
             // AudioClip unterstützt paralleles Abspielen desselben Clips automatisch
             customAudioClip.play();
         }
@@ -195,7 +197,7 @@ public class SoundManager {
                         // Volume wird jetzt zentral gesetzt, aber initial ok
                     }
                 } catch (Exception e) {
-                    System.err.println("Could not load sound: " + e.getMessage());
+                    LOGGER.log(Level.WARNING, "Could not load sound", e);
                 }
             }
             return audioClip;
@@ -208,8 +210,7 @@ public class SoundManager {
             AudioClip clip = getAudioClip();
             if (clip != null) {
                 clip.setVolume(vol);
-                // FIX: KEIN stop() hier!
-                // if (clip.isPlaying()) clip.stop(); <--- GELÖSCHT
+                // Do not stop the clip before playing; allow overlapping playback
                 clip.play();
             }
         }
