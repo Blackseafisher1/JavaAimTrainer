@@ -1,0 +1,47 @@
+name: Android Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Linux Libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libasound2-dev unzip
+
+      - name: Setup Gluon GraalVM
+        run: |
+          wget https://github.com/gluonhq/graal/releases/download/gluon-22.1.0.1-Final/graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz
+          tar -xzf graalvm-svm-java17-linux-gluon-22.1.0.1-Final.tar.gz
+          mv graalvm-svm-java17-linux-gluon-22.1.0.1-Final graalvm
+          echo "GRAALVM_HOME=$PWD/graalvm" >> $GITHUB_ENV
+          echo "JAVA_HOME=$PWD/graalvm" >> $GITHUB_ENV
+          echo "$PWD/graalvm/bin" >> $GITHUB_PATH
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build and Package
+        run: unset ANDROID_SDK_ROOT && ./gradlew nativeBuild nativePackage --no-daemon -Dorg.gradle.jvmargs=-Xmx6g
+        env:
+          GLUON_TARGET: android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: aimtrainer-apk
+          path: build/gluonfx/**/*.apk

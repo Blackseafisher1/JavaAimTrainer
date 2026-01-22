@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.aimtrainer.Controller">
+
+    <stylesheets>
+        <URL value="@aimtrainer.css" />
+    </stylesheets>
+    
+    <!-- Top Section -->
+    <top>
+        <VBox alignment="CENTER" spacing="5">
+            <Label fx:id="nameLabel" styleClass="name-label" text="by Ege | @KARADENIZ, EGE™  Steuerung: Tastatur M oder Maustaste um zu Schießen(Maus registriert beim loslassen) Historie öffnen mit H" />
+            <Label fx:id="titleLabel" styleClass="title-label" text="Aim Trainer" />
+        </VBox>
+    </top>
+    
+    <!-- Center - Game Area -->
+    <center>
+        <Pane fx:id="gameArea" prefWidth="800" styleClass="game-area" />
+    </center>
+   
+    <!-- Bottom - Responsive Layout -->
+    <bottom>
+        <VBox spacing="15" styleClass="bottom-container">
+            <padding>
+                <Insets bottom="10" left="15" right="15" top="10" />
+            </padding>
+            
+          
+
+            <!-- Control Buttons (always horizontal) -->
+            <HBox alignment="CENTER" spacing="15" styleClass="controls">
+                
+                 
+                <Button fx:id="sizeBtn" styleClass="control-button" text="Change Target Size" />
+                <Button fx:id="modeBtn" styleClass="control-button" text="Switch Mode" />
+                <Button fx:id="stopBtn" styleClass="control-button" text="Stop Round" />
+            <TextField fx:id="speedButton" onAction="#handleSpeedBtn" prefHeight="23.0" prefWidth="297.0" promptText="Gib eine Geschwindigkeit zwischen 0.0-100.0 ein" />
+
+          
+            </HBox>
+            
+            <!-- MAIN CONTAINER: All three sections in one FlowPane -->
+            <FlowPane fx:id="mainBottomFlowPane" alignment="CENTER" hgap="15" prefWrapLength="1200" vgap="15">
+                
+                <!-- 1. Sound Settings Panel -->
+                <VBox alignment="CENTER" maxWidth="420" minWidth="380" spacing="8" styleClass="sound-panel">
+                    <Label styleClass="panel-title" text="Sound Settings / Target Appearance" />
+                    
+                    <FlowPane alignment="CENTER" hgap="8" prefWrapLength="380" vgap="8">
+                        <Button fx:id="classicBtn" styleClass="sound-option" text="Classic" />
+                        <Button fx:id="beepBtn" styleClass="sound-option" text="Beep" />
+                        <Button fx:id="popBtn" styleClass="sound-option" text="Pop" />
+                        <Button fx:id="laserBtn" styleClass="sound-option" text="Laser" />
+                        <Button fx:id="customBtn" styleClass="sound-option" text="Custom" />
+                    </FlowPane>
+                    
+                    <Button fx:id="uploadBtn" styleClass="mini-button" text="Upload custom sound (&gt;1sek)" />
+                    <Label fx:id="fileNameLabel" styleClass="file-label" text="No sound uploaded" />
+                    <Button fx:id="resetSoundBtn" styleClass="mini-button" text="Reset Sound" />
+                    <Button fx:id="toggleTargetBtn" styleClass="mini-button" text="Switch to Image" />
+                </VBox>
+                
+                <!-- 2. Volume Control Panel -->
+                <VBox alignment="CENTER" maxWidth="350" minWidth="300" spacing="8" styleClass="sound-panel">
+                    <Label styleClass="panel-title" text="Volume Control" />
+                    
+                    <Label  styleClass="changeVolume" text=" ↑ W | S ↓"/>
+
+                    <Label fx:id="volumeLabel" styleClass="volume-value" text="50%" />
+                    <Label fx:id="soundStatus" styleClass="sound-status-active" text="Sound: ON" />
+                    
+                    <Label styleClass="panel-title" text="Hit Effects" />
+                    <Button fx:id="toggleHitEffectBtn" styleClass="mini-button" text="Switch to Pulse" />
+                    <Button fx:id="hitEffectOnOffBtn" styleClass="mini-button hit-effect-toggle" text="Turn hiteffects OFF" />
+                </VBox>
+                
+                <!-- 3. Stats Grid (as a single container) -->
+                <GridPane hgap="15" maxWidth="800" minWidth="600" styleClass="stats-grid" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25" />
+                        <ColumnConstraints percentWidth="25" />
+                        <ColumnConstraints percentWidth="25" />
+                        <ColumnConstraints percentWidth="25" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="50" />
+                        <RowConstraints percentHeight="50" />
+                    </rowConstraints>
+                    
+                    <!-- Time Left -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="Time Left:" />
+                        <Label fx:id="timeLabel" styleClass="info-value" text="60" />
+                    </VBox>
+                    
+                    <!-- Score -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Score:" />
+                        <Label fx:id="scoreLabel" styleClass="info-value" text="0" />
+                    </VBox>
+                    
+                    <!-- Missclicks -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label text="Missclicks:" />
+                        <Label fx:id="missclicksLabel" styleClass="info-value" text="0" />
+                    </VBox>
+                    
+                    <!-- Best Score -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                        <Label text="Best Score:" />
+                        <Label fx:id="bestScoreLabel" styleClass="info-value best-score" text="0" />
+                    </VBox>
+                    
+                    <!-- Mode -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="Mode:" />
+                        <Label fx:id="modeLabel" styleClass="info-value" text="Single" />
+                    </VBox>
+                    
+                    <!-- Accuracy -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="Accuracy:" />
+                        <Label fx:id="accuracyLabel" styleClass="info-value" text="0%" />
+                    </VBox>
+                    
+                    <!-- Combo -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <Label text="Combo:" />
+                        <Label fx:id="comboLabel" styleClass="info-value" text="0" />
+                    </VBox>
+                    
+                    <!-- Avg Time -->
+                    <VBox alignment="CENTER" spacing="5" styleClass="info-item" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                        <Label text="Avg Time:" />
+                        <Label fx:id="avgTimeLabel" styleClass="info-value" text="0.00s" />
+                    </VBox>
+                </GridPane>
+            </FlowPane>
+        </VBox>
+    </bottom>
+</BorderPane>

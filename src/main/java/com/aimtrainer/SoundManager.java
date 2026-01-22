@@ -1,0 +1,223 @@
+package com.aimtrainer;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.media.AudioClip;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+public class SoundManager {
+
+    // Singleton-Instanz
+    private static SoundManager instance;
+
+    private static final Logger LOGGER = Logger.getLogger(SoundManager.class.getName());
+
+    // Gibt die Singleton-Instanz zurück
+    public static SoundManager getInstance() {
+        if (instance == null) {
+            instance = new SoundManager();
+        }
+        return instance;
+    }
+
+    private SoundOption currentSoundOption = SoundOption.CLASSIC;
+    private AudioClip wallHitSound;
+    
+    // Speichert den Pfad für benutzerdefinierte Sounds
+    private String customSoundPath = null;
+
+    // Zwischengespeicherter AudioClip für benutzerdefinierte Sounds
+    private AudioClip customAudioClip = null;
+
+    // Lautstärkevariable
+    private double volume = 0.5;
+
+    public String getCustomSoundPath() {
+        return customSoundPath;
+    }
+
+    // Privater Konstruktor (Singleton)
+    private SoundManager() {
+        try {
+            URL wallHitUrl = SoundManager.class.getResource("/sounds/wood.mp3");
+            if (wallHitUrl != null) {
+                wallHitSound = new AudioClip(wallHitUrl.toString());
+                wallHitSound.setVolume(volume);
+            } else {
+                LOGGER.warning("Wall hit sound not found: /sounds/wood.mp3");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not load wall hit sound", e);
+        }
+    }
+
+    // ... (FileChooser-Methoden bleiben unverändert) ...
+    public boolean chooseCustomSound(Stage ownerStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Wähle einen Sound");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Audio Files", "*.mp3", "*.wav", "*.aiff", "*.m4a")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(ownerStage);
+        if (selectedFile != null) {
+            try {
+                String fileUrl = selectedFile.toURI().toURL().toString();
+                setCustomSoundPath(fileUrl);
+                return true;
+            } catch (MalformedURLException e) {
+                LOGGER.log(Level.WARNING, "Fehler beim Laden der Datei", e);
+            }
+        }
+        return false;
+    }
+
+    public void setCustomSoundPath(String url) {
+        this.customSoundPath = url;
+        this.customAudioClip = null; 
+        LOGGER.info("Custom Sound gesetzt auf: " + url);
+    }
+    
+    public boolean hasCustomSound() {
+        return customSoundPath != null;
+    }
+
+    // Methoden zur Lautstärkeregelung
+    public void setVolume(double v) {
+        this.volume = Math.max(0.0, Math.min(1.0, v));
+        if (wallHitSound != null) wallHitSound.setVolume(volume);
+        if (customAudioClip != null) customAudioClip.setVolume(volume);
+        // Für Enums:
+        for(SoundOption so : SoundOption.values()) {
+            AudioClip c = so.getAudioClip();
+            if(c != null) c.setVolume(volume);
+        }
+    }
+    
+     public void changeVolume(double delta) {
+        setVolume(volume + delta);
+    }
+    
+    public double getVolume() { return volume; }
+
+
+    // Abspiel-Logik
+
+    public void setCurrentSound(SoundOption soundOption) {
+        this.currentSoundOption = soundOption;
+    }
+
+    public SoundOption getCurrentSound() {
+        return currentSoundOption;
+    }
+
+    public void playCurrentSound() {
+        if (currentSoundOption != null) {
+            if (currentSoundOption == SoundOption.CUSTOM) {
+                playCustomSound();
+            } else {
+                currentSoundOption.play(this.volume); // Volume übergeben
+            }
+        }
+    }
+
+    public void playSound(SoundOption soundOption) {
+        if (soundOption != null) {
+            if (soundOption == SoundOption.CUSTOM) {
+                playCustomSound();
+            } else {
+                soundOption.play(this.volume);
+            }
+        }
+    }
+
+    public void playHit() {
+        playCurrentSound();
+    }
+
+    public void playWallHit() {
+        if (wallHitSound != null) {
+            wallHitSound.play();
+        }
+    }
+    
+    private void playCustomSound() {
+        if (customSoundPath == null) {
+            LOGGER.info("Kein Custom Sound ausgewählt!");
+            return;
+        }
+        
+        if (customAudioClip == null) {
+            try {
+                customAudioClip = new AudioClip(customSoundPath);
+                customAudioClip.setVolume(volume);
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Fehler beim Abspielen des Custom Sounds", e);
+                return;
+            }
+        }
+        
+        if (customAudioClip != null) {
+            // Vor dem Abspielen nicht stoppen; überlappendes Abspielen erlauben
+            // AudioClip unterstützt paralleles Abspielen desselben Clips automatisch
+            customAudioClip.play();
+        }
+    }
+
+    public enum SoundOption {
+        CLASSIC("Classic", "/sounds/classic.mp3"),
+        BEEP("Beep", "/sounds/beep.mp3"),
+        POP("Pop", "/sounds/pop.mp3"),
+        LASER("Laser", "/sounds/laser.mp3"),
+        CUSTOM("Custom", null);
+
+        private final String displayName;
+        private final String soundPath;
+        private AudioClip audioClip;
+
+        SoundOption(String displayName, String soundPath) {
+            this.displayName = displayName;
+            this.soundPath = soundPath;
+        }
+
+        public String getDisplayName() { return displayName; }
+        public String getSoundPath() { return soundPath; }
+
+        public AudioClip getAudioClip() {
+            if (this == CUSTOM) return null;
+            if (audioClip == null) {
+                try {
+                    URL soundUrl = SoundManager.class.getResource(soundPath);
+                    if (soundUrl != null) {
+                        audioClip = new AudioClip(soundUrl.toString());
+                        // Volume wird jetzt zentral gesetzt, aber initial ok
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, "Could not load sound", e);
+                }
+            }
+            return audioClip;
+        }
+
+        // Neue play Methode mit Volume-Support und OHNE stop()
+        public void play(double vol) {
+            if (this == CUSTOM) return;
+
+            AudioClip clip = getAudioClip();
+            if (clip != null) {
+                clip.setVolume(vol);
+                // Do not stop the clip before playing; allow overlapping playback
+                clip.play();
+            }
+        }
+        
+        // Alte play Methode für Kompatibilität (falls nötig)
+        public void play() {
+            play(0.5);
+        }
+    }
+}
